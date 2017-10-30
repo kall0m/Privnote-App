@@ -1,3 +1,6 @@
+require 'json'
+require 'xml'
+
 class MessagesController < ApplicationController
   def show
     @message = Message.find(params[:id])
@@ -8,6 +11,9 @@ class MessagesController < ApplicationController
   end
 
   def create
+    #json_file = File.read(ARGV[0])
+    #data_hash = JSON.parse(json_file)
+
     @message = Message.new(message_params)
    
     @message.save
