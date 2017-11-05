@@ -16,13 +16,15 @@ class MessagesController < ApplicationController
       params[:message] = {"content" => message_hash["message"]}
 
       @message = Message.create(message_params)
+      
+      url = {"url" => messages_url + "/" + @message.id.to_s}
 
-      url = '<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>' + 
-            "<url>" + 
-              messages_url + '/' + @message.id.to_s + 
-            "</url>"
+      #url = '<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>' + 
+       #     "<url>" + 
+        #      messages_url + '/' + @message.id.to_s + 
+         #   "</url>"
 
-      render :xml => url
+      render :xml => url.to_xml(:root => :address, :skip_types => true)
     else
       respond_to do |format|
           format.json {
