@@ -1,5 +1,5 @@
 require 'json'
-require 'xml'
+#Support for parsing XML parameters has been extracted into a gem named actionpack-xml_parser.
 
 class MessagesController < ApplicationController
   def show
@@ -11,15 +11,38 @@ class MessagesController < ApplicationController
   end
 
   def create
-    #json_file = File.read(ARGV[0])
-    #data_hash = JSON.parse(json_file)
+    if request.content_type =~ /xml/
+      message_hash = Hash.from_xml(request.body.read)
 
-    @message = Message.new(message_params)
-   
-    @message.save
+      params[:message] = {"content" => message_hash["message"]}
 
-    render :get_url
-    #redirect_to action get_url or smth
+      @message = Message.create(message_params)
+
+      url = '<?xml version = "1.0" encoding = "UTF-8" standalone ="yes"?>' + 
+            "<url>" + 
+              messages_url + '/' + @message.id.to_s + 
+            "</url>"
+
+      render :xml => url
+    else
+      respond_to do |format|
+          format.json {
+            params[:message] = {"content" => params[:message]}
+
+            @message = Message.create(message_params)
+
+            url = {"url" => messages_url + "/" + @message.id.to_s}
+
+            render :json => url.to_json
+          }
+
+          format.html {
+            @message = Message.create(message_params)
+
+            render :get_url
+          }
+      end
+    end
   end
  
   def get_url
@@ -28,6 +51,6 @@ class MessagesController < ApplicationController
 
 private
   def message_params
-    params.require(:message).permit(:text)
+    params.require(:message).permit(:content)
   end
 end
