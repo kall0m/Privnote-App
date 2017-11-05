@@ -1,5 +1,4 @@
 require 'json'
-#Support for parsing XML parameters has been extracted into a gem named actionpack-xml_parser.
 
 class MessagesController < ApplicationController
   def show
